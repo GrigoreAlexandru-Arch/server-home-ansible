@@ -1,0 +1,12 @@
+# This file is automatically managed by Ansible.
+# It contains credentials and secrets for Docker Compose services.
+# Permissions are set to 0600 (read/write by owner only).
+
+# --- User Credentials ---
+# Credentials for general access (e.g., dashboard login, basic auth)
+USER_ACCOUNT="{{ app_user_account }}"
+PASSWORD="{{ app_password }}"
+
+# --- Application Secrets ---
+# Secure key base for OpenProject/Rails applications (generated randomly by Ansible)
+OPENPROJECT_KEY_BASE="{{ openproject_key_base }}"

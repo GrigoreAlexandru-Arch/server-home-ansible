@@ -1,0 +1,33 @@
+- name: Deploy Reload Service (The Reactor)
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/wg-restart-{{ wg_interface }}.service"
+    content: |
+      [Unit]
+      Description=Reload WireGuard {{ wg_interface }}
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/systemctl reload wg-quick@{{ wg_interface }}.service
+    mode: "0644"
+
+- name: Deploy Path Monitor (The Watcher)
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/wg-restart-{{ wg_interface }}.path"
+    content: |
+      [Unit]
+      Description=Monitor /etc/wireguard/{{ wg_interface }}.conf for changes
+
+      [Path]
+      PathChanged=/etc/wireguard/{{ wg_interface }}.conf
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+  notify: reload systemd
+
+- name: Start Path Watcher
+  ansible.builtin.service:
+    name: "wg-restart-{{ wg_interface }}.path"
+    state: started
+    enabled: yes

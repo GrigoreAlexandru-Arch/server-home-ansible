@@ -1,0 +1,15 @@
+- name: Install WireGuard
+  ansible.builtin.apt:
+    name: [wireguard, wireguard-tools]
+
+- name: Key Generation & Config
+  import_tasks: keys_and_config.yaml
+
+- name: Setup Auto-Restart Watcher
+  import_tasks: watcher.yaml
+
+- name: Start WireGuard
+  ansible.builtin.systemd:
+    name: "wg-quick@{{ wg_interface }}"
+    enabled: yes
+    state: started

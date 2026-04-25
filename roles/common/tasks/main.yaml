@@ -1,0 +1,6 @@
+- name: Fail if not Armbian/Debian on aarch64
+  ansible.builtin.fail:
+    msg: "This system is not supported (Requires Debian aarch64)."
+  when: >
+    ansible_facts['os_family'] != "Debian" or 
+    ansible_facts['architecture'] != "aarch64"

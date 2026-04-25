@@ -1,0 +1,35 @@
+- name: Ensure config directory permissions
+  ansible.builtin.file:
+    path: /etc/wireguard
+    state: directory
+    mode: "0700"
+
+- name: Generate Private Key
+  ansible.builtin.shell: |
+    umask 077
+    wg genkey > /etc/wireguard/{{ wg_interface }}.key
+  args:
+    creates: "/etc/wireguard/{{ wg_interface }}.key"
+
+- name: Read Private Key
+  ansible.builtin.slurp:
+    src: "/etc/wireguard/{{ wg_interface }}.key"
+  register: wg_priv_b64
+
+- name: Template wg0.conf
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: "/etc/wireguard/{{ wg_interface }}.conf"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    wg_private_key: "{{ wg_priv_b64.content | b64decode | trim }}"
+  notify: restart wireguard
+
+- name: Enable IP Forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: true

@@ -1,0 +1,44 @@
+- name: Install Docker Engine
+  import_tasks: install_engine.yaml
+
+- name: Setup Git SSH Key
+  become_user: "{{ target_user }}"
+  community.crypto.openssh_keypair:
+    path: "{{ ssh_key_path }}"
+    type: ed25519
+
+- name: Clone Stack Repository
+  become_user: "{{ target_user }}"
+  ansible.builtin.git:
+    repo: "{{ git_repo }}"
+    dest: "{{ docker_config_path }}"
+    key_file: "{{ ssh_key_path }}"
+    accept_hostkey: yes
+
+- name: Generate App Secrets
+  ansible.builtin.set_fact:
+    openproject_key_base: "{{ openproject_key_base }}"
+
+- name: Deploy .env and Systemd Service
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {
+        src: "docker_config_env.j2",
+        dest: "{{ docker_config_path }}/.env",
+        mode: "0600",
+      }
+    - {
+        src: "docker-config.service.j2",
+        dest: "/etc/systemd/system/docker-config.service",
+        mode: "0644",
+      }
+  notify: reload systemd
+
+- name: Start Docker Stack
+  ansible.builtin.service:
+    name: docker-config.service
+    state: started
+    enabled: yes

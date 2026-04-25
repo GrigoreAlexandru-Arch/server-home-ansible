@@ -1,0 +1,18 @@
+[Unit]
+Description=External Hard Drive Mount for Docker Data
+# Explicitly start before docker, ensuring the path is available
+Before=docker.service
+
+[Mount]
+# What= is the source of the mount (UUID or /dev/device)
+What=UUID={{ drive_uuid }}
+# Where= is the target mount point (must match the filename pattern if dynamic)
+Where={{ mount_point }}
+# Type= is the filesystem type (e.g., ext4)
+Type={{ fs_type }}
+# Options for the mount command
+Options=defaults,nofail,x-systemd.device-timeout=300s
+
+[Install]
+# This unit should be required for multi-user operations
+WantedBy=multi-user.target

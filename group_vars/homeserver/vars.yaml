@@ -1,0 +1,23 @@
+# group_vars/homeserver.yaml
+target_user: "{{ ansible_user | default('armbian') }}"
+docker_config_path: "/home/{{ target_user }}/docker-config"
+
+# Git & App Config
+git_repo: "git@github.com:GrigoreAlexandru-Arch/server-home.git"
+ssh_key_path: "/home/{{ target_user }}/.ssh/id_ed25519"
+app_user_account: "{{ vault_app_user_account }}"
+app_password: "{{ vault_app_password }}"
+openproject_key_base: "{{ vault_openproject_key_base }}"
+
+# Storage config
+drive_uuid: "5b8e1417-42f9-49b2-b070-0a0668a84704"
+mount_point: "/home/{{ target_user }}/docker-config/external_hdd"
+mount_unit_name: "home-arch-docker\\x2dconfig-external_hdd.mount"
+fs_type: "ext4"
+
+# WireGuard config
+wg_interface: wg0
+wg_port: 51820
+wg_server_ip: 10.8.0.1
+wg_subnet: 10.8.0.0/24
+wg_external_interface: "{{ ansible_facts['default_ipv4']['interface'] }}"

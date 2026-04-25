@@ -1,0 +1,6 @@
+[Interface]
+PrivateKey = {{ wg_private_key }}
+Address = {{ wg_server_ip }}/24
+ListenPort = {{ wg_port }}
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o {{ wg_external_interface }} -j MASQUERADE; iptables -A FORWARD -i %i -o {{ wg_external_interface }} -j ACCEPT; iptables -A FORWARD -i {{ wg_external_interface }} -o %i -j ACCEPT
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o {{ wg_external_interface }} -j MASQUERADE; iptables -D FORWARD -i %i -o {{ wg_external_interface }} -j ACCEPT; iptables -D FORWARD -i {{ wg_external_interface }} -o %i -j ACCEPT
